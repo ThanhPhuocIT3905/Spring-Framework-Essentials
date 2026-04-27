@@ -2,6 +2,14 @@ package config;
 
 import javax.sql.DataSource;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import rewards.internal.RewardNetworkImpl;
+import rewards.internal.account.JdbcAccountRepository;
+import rewards.internal.restaurant.JdbcRestaurantRepository;
+import rewards.internal.reward.JdbcRewardRepository;
+
 /**
  * TODO-00: In this lab, you are going to exercise the following:
  * - Creating Spring configuration class
@@ -42,9 +50,44 @@ import javax.sql.DataSource;
  *   not an implementation.
  */
 
+
+@Configuration // Đánh dấu class này là một Spring configuration class, Spring sẽ tìm kiếm các @Bean method trong class này để tạo Spring beans.
 public class RewardsConfig {
 
 	// Set this by adding a constructor.
 	private DataSource dataSource;
+
+	public RewardsConfig(DataSource dataSource) {
+		this.dataSource = dataSource;
+	}
+
+	@Bean // Đánh dấu method này là một @Bean method, Spring sẽ gọi method này để tạo một Spring bean và quản lý nó trong application context.
+	public JdbcAccountRepository accountRepository() {
+		JdbcAccountRepository repo = new JdbcAccountRepository();
+		repo.setDataSource(dataSource);
+		return repo;
+	}
+
+	@Bean
+	public JdbcRestaurantRepository restaurantRepository() {
+		JdbcRestaurantRepository repo = new JdbcRestaurantRepository();
+		repo.setDataSource(dataSource);
+		return repo;
+	}
+
+	@Bean
+	public JdbcRewardRepository rewardRepository() {
+		JdbcRewardRepository repo = new JdbcRewardRepository();
+		repo.setDataSource(dataSource);
+		return repo;
+	}
+
+	@Bean
+	// Tiếng việt: Định nghĩa một @Bean method để tạo bean rewardNetwork, 
+	// phương thức này sẽ gọi constructor của RewardNetworkImpl 
+	// và truyền vào các repository bean đã được định nghĩa ở trên.
+	public RewardNetworkImpl rewardNetwork() {
+		return new RewardNetworkImpl(accountRepository(), restaurantRepository(), rewardRepository());
+	}
 
 }

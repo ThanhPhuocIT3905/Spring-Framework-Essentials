@@ -2,7 +2,10 @@ package rewards;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+
+import config.RewardsConfig;
 
 import javax.sql.DataSource;
 
@@ -53,6 +56,9 @@ import javax.sql.DataSource;
  *
  */
 @Configuration
+@Import(RewardsConfig.class) 
+// Import RewardsConfig để có thể sử dụng các bean được định nghĩa trong đó, 
+// bao gồm rewardNetwork và các repository.
 public class TestInfrastructureConfig {
 
 	/**
