@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.stereotype.Repository;
+
 import rewards.AccountContribution;
 import rewards.AccountContribution.Distribution;
 
@@ -20,6 +22,7 @@ import common.repository.Entity;
  * 
  * An entity. An aggregate.
  */
+@Repository
 public class Account extends Entity {
 
 	private String number;

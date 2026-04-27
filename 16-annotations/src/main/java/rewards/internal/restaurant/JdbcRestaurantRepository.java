@@ -1,8 +1,13 @@
 package rewards.internal.restaurant;
 
 import common.money.Percentage;
-import org.springframework.dao.EmptyResultDataAccessException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.stereotype.Repository;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,7 +48,7 @@ import java.util.Map;
  *   understand why. (If not, refer to lab document).
  *   We will fix this error in the next step.
  */
-
+@Repository
 public class JdbcRestaurantRepository implements RestaurantRepository {
 
 	private DataSource dataSource;
@@ -68,6 +73,7 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 	public JdbcRestaurantRepository() {
 	}
 
+	@Autowired
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
 	}
@@ -92,6 +98,7 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 	 *   the constructor, is a better practice.
 	 */
 
+	@PostConstruct // Đánh dấu phương thức này sẽ được gọi sau khi bean được khởi tạo và các dependency đã được thiết lập
 	void populateRestaurantCache() {
 		restaurantCache = new HashMap<String, Restaurant>();
 		String sql = "select MERCHANT_NUMBER, NAME, BENEFIT_PERCENTAGE from T_RESTAURANT";
@@ -166,7 +173,10 @@ public class JdbcRestaurantRepository implements RestaurantRepository {
 	 * - Re-run the test and you should be able to see
 	 *   that this method is now being called.
 	 */
+
+	@PreDestroy // Đánh dấu phương thức này sẽ được gọi trước khi bean bị hủy, thường dùng để giải phóng tài nguyên
 	public void clearRestaurantCache() {
+		System.out.println("Clearing cache");
 		restaurantCache.clear();
 	}
 
