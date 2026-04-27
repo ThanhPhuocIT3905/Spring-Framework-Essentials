@@ -1,9 +1,13 @@
 package rewards.internal;
 
+import common.money.MonetaryAmount;
+import rewards.AccountContribution;
 import rewards.Dining;
 import rewards.RewardConfirmation;
 import rewards.RewardNetwork;
+import rewards.internal.account.Account;
 import rewards.internal.account.AccountRepository;
+import rewards.internal.restaurant.Restaurant;
 import rewards.internal.restaurant.RestaurantRepository;
 import rewards.internal.reward.RewardRepository;
 
@@ -52,7 +56,25 @@ public class RewardNetworkImpl implements RewardNetwork {
 	public RewardConfirmation rewardAccountFor(Dining dining) {
 		// TODO-07: Write code here for rewarding an account according to
 		//          the sequence diagram in the lab document
+
+		// Account: Tìm tài khoản bằng số thẻ tín dụng
+		Account account = accountRepository.findByCreditCard(dining.getCreditCardNumber());
+
+		// Restaurant: Tìm nhà hàng bằng số hiệu thương gia
+		Restaurant restaurant = restaurantRepository.findByMerchantNumber(dining.getMerchantNumber());
+
+		// Benefit: Tính lợi ích dựa trên tài khoản, nhà hàng và bữa ăn
+		MonetaryAmount amount = restaurant.calculateBenefitFor(account, dining);
+
+		// Account: Tạo một khoản đóng góp cho tài khoản
+		AccountContribution contribution = account.makeContribution(amount);
+
+		// AccountRepository: Cập nhật người thụ hưởng của tài khoản
+		accountRepository.updateBeneficiaries(account);
+
 		// TODO-08: Return the corresponding reward confirmation
-		return null;
+		// RewardRepository: Xác nhận phần thưởng và trả về kết quả
+		return rewardRepository.confirmReward(contribution, dining);
+		
 	}
 }
