@@ -34,7 +34,7 @@ public class DBExceptionHandlingAspectTests {
         assertThrows(RewardDataAccessException.class, () -> {
             repository.findByCreditCard("1234123412341234");
         });
-
+        
         // TODO-12: (Optional) Validate our AOP is working.
         //
         // - An error message should now be logged to the console as a warning

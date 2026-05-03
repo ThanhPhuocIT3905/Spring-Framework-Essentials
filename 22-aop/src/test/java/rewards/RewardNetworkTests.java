@@ -1,4 +1,4 @@
-package rewards;
+    package rewards;
 
 import common.money.MonetaryAmount;
 import org.junit.jupiter.api.Test;

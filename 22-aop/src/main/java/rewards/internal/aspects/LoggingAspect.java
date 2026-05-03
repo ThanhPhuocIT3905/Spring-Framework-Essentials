@@ -3,8 +3,12 @@ package rewards.internal.aspects;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import rewards.internal.monitor.Monitor;
 import rewards.internal.monitor.MonitorFactory;
@@ -17,6 +21,8 @@ import rewards.internal.monitor.MonitorFactory;
 //    where `MonitorFactory` dependency is being injected.
 //    (It is optional since there is only a single constructor in the class.)
 
+@Aspect // Đánh dấu đây là một Aspect
+@Component
 public class LoggingAspect {
     public final static String BEFORE = "'Before'";
     public final static String AROUND = "'Around'";
@@ -35,7 +41,7 @@ public class LoggingAspect {
 	// - Decide which advice type is most appropriate
 	// - Write a pointcut expression that selects only find* methods on
 	//    our repository classes.
-
+	@Before("execution(* rewwards.internal..*Repository.find*(..))") // Chọn tất cả các phương thức bắt đầu bằng "find" trong các lớp Repository
 	public void implLogging(JoinPoint joinPoint) {
 		// Do not modify this log message or the test will fail
 		logger.info(BEFORE + " advice implementation - " + joinPoint.getTarget().getClass() + //
@@ -48,7 +54,7 @@ public class LoggingAspect {
     // - Mark this method as an around advice.
 	// - Write a pointcut expression to match on all update* methods
 	//	 on all Repository classes.
-
+	@Around("execution(* rewards.internal..*Repository.update*(..))") // Chọn tất cả các phương thức bắt đầu bằng "update" trong các lớp Repository
 	public Object monitor(ProceedingJoinPoint repositoryMethod) throws Throwable {
 		String name = createJoinPointTraceName(repositoryMethod);
 		Monitor monitor = monitorFactory.start(name);
@@ -58,8 +64,8 @@ public class LoggingAspect {
 			//  TODO-08: Add the logic to proceed with the target method invocation.
 			//  - Be sure to return the target method's return value to the caller
 			//    and delete the line below.
-
-			return new String("Delete this line after completing TODO-08");
+			return repositoryMethod.proceed(); // Thực hiện phương thức gốc và trả về kết quả
+			// return new String("Delete this line after completing TODO-08");
 
 		} finally {
 			monitor.stop();
