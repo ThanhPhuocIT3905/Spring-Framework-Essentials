@@ -42,8 +42,9 @@ public class JdbcRewardRepositoryTests {
 	@BeforeEach
 	public void setUp() throws Exception {
 		dataSource = createTestDataSource();
-		repository = new JdbcRewardRepository(dataSource);
 		jdbcTemplate = new JdbcTemplate(dataSource);
+		repository = new JdbcRewardRepository(jdbcTemplate);
+		
 	}
 
 	@Test
@@ -75,7 +76,9 @@ public class JdbcRewardRepositoryTests {
 		//    the build.gradle file.)
 		//
 		
-		Map<String, Object> values = null;
+		Map<String, Object> values = jdbcTemplate.queryForMap("SELECT * FROM T_REWARD WHERE CONFIRMATION_NUMBER = ?", confirmation.getConfirmationNumber());
+		 // Sử dụng phương thức queryForMap của JdbcTemplate để truy vấn một bản ghi từ bảng T_REWARD dựa trên confirmationNumber
+		 // và lưu kết quả vào một Map<String, Object> có tên là values
 		verifyInsertedValues(confirmation, dining, values);
 	}
 
@@ -92,7 +95,8 @@ public class JdbcRewardRepositoryTests {
 	private int getRewardCount() throws SQLException {
 		// TODO-01: Use JdbcTemplate to query for the number of rows in the T_REWARD table
 		// - Use "SELECT count(*) FROM T_REWARD" as SQL statement
-		return -1;
+		return jdbcTemplate.queryForObject("SELECT count(*) FROM T_REWARD", Integer.class); 
+		// Sử dụng phương thức queryForObject của JdbcTemplate để truy vấn số lượng hàng trong bảng T_REWARD
 	}
 
 	private DataSource createTestDataSource() {
