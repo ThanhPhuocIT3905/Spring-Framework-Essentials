@@ -4,6 +4,8 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import rewards.AccountContribution;
 import rewards.Dining;
@@ -13,6 +15,8 @@ import rewards.internal.reward.RewardRepository;
 /**
  * A dummy reward repository implementation.
  */
+@Repository
+@Profile("stub") // Chỉ kích hoạt Bean này khi profile "stub" đang hoạt động
 public class StubRewardRepository implements RewardRepository {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

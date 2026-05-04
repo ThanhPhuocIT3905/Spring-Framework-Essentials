@@ -1,12 +1,20 @@
 package rewards;
 
 import common.money.MonetaryAmount;
+import config.RewardsConfig;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -82,34 +90,18 @@ import static org.junit.jupiter.api.Assertions.*;
  *   lab document.)
  * - Run the test again.
  */
-
+// @SpringJUnitConfig(TestInfrastructureConfig.class) // Cấu hình Spring TestContext Framework với lớp cấu hình TestInfrastructureConfig
+@SpringJUnitConfig // Cấu hình Spring TestContext Framework, Spring sẽ tự động tìm kiếm lớp cấu hình bên trong lớp test này
+// @ActiveProfiles("stub") // Chỉ kích hoạt profile "stub" cho test này
+// @ActiveProfiles({"jdbc", "local"}) // Kích hoạt cả profile "jdbc" và "local" cho test này
+@ActiveProfiles({"jdbc", "jndi"}) // Kích hoạt cả profile "jdbc" và "jndi" cho test này
 public class RewardNetworkTests {
 
-	
 	/**
 	 * The object being tested.
 	 */
+	@Autowired // Sử dụng @Autowired để tự động tiêm RewardNetwork từ Spring Application Context
 	private RewardNetwork rewardNetwork;
-
-	/**
-	 * Need this to enable clean shutdown at the end of the application
-	 */
-	private ConfigurableApplicationContext context;
-
-	@BeforeEach
-	public void setUp() {
-		// Create the test configuration for the application from one file
-		context = SpringApplication.run(TestInfrastructureConfig.class);
-		// Get the bean to use to invoke the application
-		rewardNetwork = context.getBean(RewardNetwork.class);
-	}
-
-	@AfterEach
-	public void tearDown() throws Exception {
-		// simulate the Spring bean destruction lifecycle:
-		if (context != null)
-			context.close();
-	}
 
 	@Test
 	@DisplayName("Test if reward computation and distribution works")
@@ -149,5 +141,21 @@ public class RewardNetworkTests {
 				() -> assertEquals(2, contribution.getDistributions().size()),
 				() -> assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Annabelle").getAmount()),
 				() -> assertEquals(MonetaryAmount.valueOf("4.00"), contribution.getDistribution("Corgan").getAmount()));
+	}
+
+	@Configuration
+	@Import({
+		TestInfrastructureLocalConfig.class,
+		TestInfrastructureJndiConfig.class,
+		RewardsConfig.class })
+	static class TestInfrastructureConfig {
+
+		/**
+		 * The bean logging post-processor from the bean lifecycle slides.
+		 */
+		@Bean
+		public static LoggingBeanPostProcessor loggingBean(){
+			return new LoggingBeanPostProcessor();
+		}
 	}
 }
